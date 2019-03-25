@@ -53,7 +53,7 @@ namespace Sushi
 		/// <summary>
 		///     Add the given <paramref name="types"/> to use for conversion.
 		/// </summary>
-		public ConversionKernel AddModes(IEnumerable<Type> types)
+		public ConversionKernel AddModels(IEnumerable<Type> types)
 		{
 			foreach (var model in types.Select(x => new ClassDescriptor(x)))
 				Models.Add(model);

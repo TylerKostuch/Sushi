@@ -148,7 +148,10 @@ namespace Sushi
                 {
                     var indent = row.Before(CLASS_PROPERTIES_KEY);
                     var propertyDefinitionBuilder = new StringBuilder();
-                    foreach (var property in model.Properties)
+
+                    var properties = model.Properties.OrderBy(x => x.Name);
+                    
+                    foreach (var property in properties)
                     {
                         foreach (var line in Language.FormatPropertyDefinition(_kernel, property))
                             propertyDefinitionBuilder.AppendLine(indent + line);

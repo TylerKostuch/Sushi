@@ -33,9 +33,9 @@ namespace Sushi.Descriptors
 			Property = property;
 			Name = property.Name;
 			Container = property.DeclaringType;
-			NativeType = Type.ToNativeTypeEnum();
 			IsNullable = type.IsNullable();
 			Type = IsNullable ? Nullable.GetUnderlyingType(type) : type;
+			NativeType = Type.ToNativeTypeEnum();
 			Value = value;
 
 			// Check if the property is marked as read-only.

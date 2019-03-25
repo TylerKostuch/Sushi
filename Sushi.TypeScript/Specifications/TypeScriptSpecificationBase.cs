@@ -28,7 +28,33 @@ namespace Sushi.TypeScript.Specifications
                     tsTypeName = dataModel.Name;
             }
 
-            return type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string) ? $@"Array<{tsTypeName}>" : tsTypeName;
+            if (type.IsTypeOrInheritsOf(typeof(IDictionary)))
+            {
+                var args = property.Property.PropertyType.GetGenericArguments().Select(x =>
+                {
+                    var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
+                    if (!ReferenceEquals(dataModel, null))
+                        return dataModel.Name;
+                    
+                    return GetBaseType(x.ToNativeTypeEnum());
+                }).ToList();
+                return "{ [index: " + args[0] + "]: "+ args[1] +" }";
+            }
+            else if (property.Property.PropertyType.IsGenericType && type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string))
+            {
+                // This really should be a recursive call to FormatPropertyType
+                tsTypeName = string.Join(" | ", property.Property.PropertyType.GenericTypeArguments.Select(x =>
+                {
+                    var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
+                    if (!ReferenceEquals(dataModel, null))
+                        return dataModel.Name;
+                    
+                    return GetBaseType(x.ToNativeTypeEnum());
+                }).ToList());
+                return $@"Array<{tsTypeName}>";
+            }
+            
+            return  tsTypeName;   
         }
 
         internal string GetBaseType(NativeType type)
@@ -71,10 +97,13 @@ namespace Sushi.TypeScript.Specifications
 
             // Apply formatting for TypeScript its Array type.
             var type = FormatPropertyType(kernel, property);
-            var name = property.Name;
+            var name = GetPropertyName(property);
 
-            if (property.Type.IsNullable())
-                name += "?";
+            if (string.IsNullOrEmpty(name))
+                name = property.Name;
+
+            if (property.Property.PropertyType.IsNullable())
+                type += " | null";
 
             var statement = property.IsReadonly ?
                 $@"readonly {name}: {type};" :
@@ -82,6 +111,8 @@ namespace Sushi.TypeScript.Specifications
 
             yield return statement;
         }
+
+        public virtual string GetPropertyName(PropertyDescriptor property) => "";  
 
         /// <inheritdoc />
         public override ScriptConditionDescriptor FormatComment(string comment, StatementType relatedType)
