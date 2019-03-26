@@ -38,7 +38,7 @@ namespace Sushi.TypeScript.Specifications
                     
                     return GetBaseType(x.ToNativeTypeEnum());
                 }).ToList();
-                return "{ [index: " + args[0] + "]: "+ args[1] +" }";
+                return $"Record<{args[0]}, {args[1]}>";
             }
             else if (property.Property.PropertyType.IsGenericType && type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string))
             {
