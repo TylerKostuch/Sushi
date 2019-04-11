@@ -116,11 +116,19 @@ namespace Sushi
             var modelBuilder = new StringBuilder();
             var doc = _kernel.Documentation?.GetDocumentationForType(model.Type);
 
+
+            var modelName = model.Name;
+            if (model.HasBaseType && model.BaseType != null && model.BaseType != typeof(Object))
+            {
+                modelName += " extends " + model.BaseType.Name;
+            }
+            
             var template = Language.Template
-                .Replace(TYPE_NAME_KEY, model.Name)
+                .Replace(TYPE_NAME_KEY, modelName)
                 .Replace(TYPE_NAMESPACE_KEY, model.Type.Namespace)
                 .Replace(ARGUMENT_NAME, _kernel.ArgumentName)
                 ;
+            
 
             var enumerator = new StringEnumerator(template);
             while (enumerator.MoveNext())

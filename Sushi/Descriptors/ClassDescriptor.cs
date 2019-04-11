@@ -41,10 +41,10 @@ namespace Sushi.Descriptors
         public ClassDescriptor(Type type)
         {
             Type = type;
-
+            
             // Get the available properties in the given type
             Properties = type.GetPropertiesWithStaticValue()
-                .Where(x => !x.Key.GetCustomAttributes(typeof(IgnoreForScript), true).Any())
+                .Where(x => !x.Key.GetCustomAttributes(typeof(IgnoreForScript), false).Any())
                 .Select(x => new PropertyDescriptor(x.Key, x.Value))
                 .ToList();
         }

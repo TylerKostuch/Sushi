@@ -103,8 +103,8 @@ namespace Sushi.Extensions
                 yield break;
 
             var type = (typeof(T) == typeof(Type) ? @this as Type : typeof(T)) ?? typeof(T);
-            var properties = type.GetProperties();
-
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            
             var ctor = type.GetConstructor(Type.EmptyTypes);
             var instance = !type.IsAbstract && ctor != null ? Activator.CreateInstance(type) : null;
             foreach (var prp in properties)
