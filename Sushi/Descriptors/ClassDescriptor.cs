@@ -16,7 +16,7 @@ namespace Sushi.Descriptors
         /// <summary>
         ///     The actual <see cref="Name"/> of the model that the given <see cref="System.Type"/> refers to.
         /// </summary>
-        public string Name => Type.Name;
+        public string Name => Type.Name.StartsWith("I") ? Type.Name.Substring(1) : Type.Name;
 
         /// <summary>
         ///     The <see cref="FullName"/> of the model that the given <see cref="System.Type"/> refers to.

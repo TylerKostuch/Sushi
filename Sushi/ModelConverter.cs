@@ -116,7 +116,6 @@ namespace Sushi
             var modelBuilder = new StringBuilder();
             var doc = _kernel.Documentation?.GetDocumentationForType(model.Type);
 
-
             var modelName = model.Name;
             if (model.HasBaseType && model.BaseType != null && model.BaseType != typeof(Object))
             {

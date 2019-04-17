@@ -102,7 +102,7 @@ namespace Sushi.TypeScript.Specifications
             if (string.IsNullOrEmpty(name))
                 name = property.Name;
 
-            if (property.Property.PropertyType.IsNullable())
+            if (property.Property.PropertyType.IsNullable() || property.Property.PropertyType.IsInterface || property.Type == typeof(string))
                 type += " | null";
 
             var statement = property.IsReadonly ?
