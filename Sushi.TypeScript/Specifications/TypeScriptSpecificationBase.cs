@@ -16,10 +16,27 @@ namespace Sushi.TypeScript.Specifications
 
         internal string FormatPropertyType(ConversionKernel kernel, PropertyDescriptor property)
         {
-            var tsTypeName = GetBaseType(property.NativeType.IncludeOverride(kernel, property.Type));
-            var type = Nullable.GetUnderlyingType(property.Type) ?? property.Type;
+            return FormatPropertyTypeRecursive(kernel, property.Type);
+        }
+
+        private string FormatPropertyTypeRecursive(ConversionKernel kernel, Type baseType)
+        {
+            var type = Nullable.GetUnderlyingType(baseType) ?? baseType;
+            var tsTypeName = GetBaseType(type.ToNativeTypeEnum().IncludeOverride(kernel, type));
             if (type == typeof(DateTime))
+            {
                 tsTypeName = "Date";
+            }
+            else if (type.IsTypeOrInheritsOf(typeof(IDictionary)))
+            {    
+                var args = type.GetGenericArguments().Select(x => FormatPropertyTypeRecursive(kernel, x)).ToList();
+                tsTypeName = $"Record<{args[0]}, {args[1]}>";
+            }
+            else if (type.IsGenericType && type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string))
+            {
+                tsTypeName = string.Join(" | ", type.GenericTypeArguments.Select(x => FormatPropertyTypeRecursive(kernel, x)).ToList());
+                tsTypeName = $"Array<{tsTypeName}>";
+            }
             else
             {
                 // Check if any of the available models have the same name and should be used.
@@ -28,47 +45,10 @@ namespace Sushi.TypeScript.Specifications
                     tsTypeName = dataModel.Name;
             }
 
-            if (type.IsTypeOrInheritsOf(typeof(IDictionary)))
-            {
-                var args = property.Property.PropertyType.GetGenericArguments().Select(x =>
-                {
-                    var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
-                    if (!ReferenceEquals(dataModel, null))
-                        return dataModel.Name;
-                    
-                    return GetBaseType(x.ToNativeTypeEnum());
-                }).ToList();
-                return $"Record<{args[0]}, {args[1]}>";
-            }
-            else if (property.Property.PropertyType.IsGenericType && type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string))
-            {
-                var args = property.Property.PropertyType.GenericTypeArguments;
-                if (args[0].IsTypeOrInheritsOf(typeof(IEnumerable)) && !(args[0] == typeof(string)))
-                {
-                    tsTypeName = string.Join(" | ", property.Property.PropertyType.GenericTypeArguments.Select(x =>
-                    {
-                        var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
-                        if (!ReferenceEquals(dataModel, null))
-                            return dataModel.Name;
-                    
-                        return GetBaseType(x.ToNativeTypeEnum());
-                    }).ToList());
-                    return $"Array<Array<{tsTypeName}>>";
-                }
-                
-                // This really should be a recursive call to FormatPropertyType
-                tsTypeName = string.Join(" | ", property.Property.PropertyType.GenericTypeArguments.Select(x =>
-                {
-                    var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
-                    if (!ReferenceEquals(dataModel, null))
-                        return dataModel.Name;
-                    
-                    return GetBaseType(x.ToNativeTypeEnum());
-                }).ToList());
-                return $"Array<{tsTypeName}>";
-            }
-            
-            return  tsTypeName;   
+            if (baseType.IsNullable())
+                tsTypeName += " | null";
+
+            return tsTypeName;
         }
 
         internal string GetBaseType(NativeType type)
@@ -103,7 +83,6 @@ namespace Sushi.TypeScript.Specifications
         /// <inheritdoc />
         public override IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property)
         {
-
             // Return the rows for the js-doc
             var summary = kernel.Documentation?.GetDocumentationForProperty(property.Property);
             if (summary?.Summary.Length > 0)
