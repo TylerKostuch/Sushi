@@ -42,6 +42,20 @@ namespace Sushi.TypeScript.Specifications
             }
             else if (property.Property.PropertyType.IsGenericType && type.IsTypeOrInheritsOf(typeof(IEnumerable)) && type != typeof(string))
             {
+                var args = property.Property.PropertyType.GenericTypeArguments;
+                if (args[0].IsTypeOrInheritsOf(typeof(IEnumerable)) && !(args[0] == typeof(string)))
+                {
+                    tsTypeName = string.Join(" | ", property.Property.PropertyType.GenericTypeArguments.Select(x =>
+                    {
+                        var dataModel = kernel.Models.FirstOrDefault(y => y.FullName == x.FullName);
+                        if (!ReferenceEquals(dataModel, null))
+                            return dataModel.Name;
+                    
+                        return GetBaseType(x.ToNativeTypeEnum());
+                    }).ToList());
+                    return $"Array<Array<{tsTypeName}>>";
+                }
+                
                 // This really should be a recursive call to FormatPropertyType
                 tsTypeName = string.Join(" | ", property.Property.PropertyType.GenericTypeArguments.Select(x =>
                 {
@@ -51,7 +65,7 @@ namespace Sushi.TypeScript.Specifications
                     
                     return GetBaseType(x.ToNativeTypeEnum());
                 }).ToList());
-                return $@"Array<{tsTypeName}>";
+                return $"Array<{tsTypeName}>";
             }
             
             return  tsTypeName;   
