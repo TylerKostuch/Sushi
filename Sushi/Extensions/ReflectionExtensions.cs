@@ -97,13 +97,23 @@ namespace Sushi.Extensions
         ///     Get the <see cref="Type"/> and default <see cref="object"/> value 
         ///     for the available Properties in the given <typeparamref name="T"/> <paramref name="this"/>.
         /// </summary>
-        public static IEnumerable<KeyValuePair<PropertyInfo, object>> GetPropertiesWithStaticValue<T>(this T @this)
+        public static IEnumerable<KeyValuePair<PropertyInfo, object>> GetPropertiesWithStaticValue<T>(this T @this, bool includeInheritedProperties)
         {
             if (@this == null)
                 yield break;
 
             var type = (typeof(T) == typeof(Type) ? @this as Type : typeof(T)) ?? typeof(T);
-            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            var properties = includeInheritedProperties 
+                ? type.GetProperties().ToList()
+                : type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).ToList();
+
+            if (includeInheritedProperties)
+            {
+                foreach (var i in type.GetInterfaces())
+                {
+                    properties.AddRange(i.GetProperties());
+                }
+            }
             
             var ctor = type.GetConstructor(Type.EmptyTypes);
             var instance = !type.IsAbstract && ctor != null ? Activator.CreateInstance(type) : null;

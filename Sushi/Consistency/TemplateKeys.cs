@@ -21,6 +21,17 @@ namespace Sushi.Consistency
         public const string TYPE_NAME_KEY = @"$$TYPENAME$$";
 
         /// <summary>
+        /// The base class or interface that TYPE_NAME_KEY inherits from.
+        /// </summary>
+        public const string BASE_TYPE_KEY = @"$$BASETYPENAME$$";
+
+        /// <summary>
+        /// The language specified keyword for extending classes or interfaces.
+        /// i.e. the colon in 'public class Foo : Bar'
+        /// </summary>
+        public const string EXTENSION_KEY = @"$$EXTENSIONKEY$$";
+
+        /// <summary>
         ///     The namespace for the specific <see cref="Type"/> to compile.
         /// </summary>
         public const string TYPE_NAMESPACE_KEY = @"$$TYPE_NAMESPACE$$";

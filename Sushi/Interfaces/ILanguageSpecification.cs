@@ -126,5 +126,7 @@ namespace Sushi.Interfaces
         ///     Remove comments from the <see cref="ClassDescriptor.Script"/>.
         /// </summary>
         string RemoveComments(ClassDescriptor model);
+        
+        string ExtensionKeyword { get; }
     }
 }

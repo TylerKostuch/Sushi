@@ -75,6 +75,12 @@ namespace Sushi
 
         /// <inheritdoc />
         public abstract string FormatValueForProperty(ConversionKernel kernel, PropertyDescriptor property, object value);
+        
+        /// <summary>
+        /// This needs a better name. This is the string used to extend classes or interfaces.
+        /// </summary>
+        /// <returns></returns>
+        public abstract string ExtensionKeyword { get; }
 
         #region Initializers
 

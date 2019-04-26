@@ -18,6 +18,11 @@ namespace Sushi
     {
         private readonly ConversionKernel _kernel;
         public ILanguageSpecification Language { get; }
+        
+        /// <summary>
+        /// When True, converted objects will extend/implement their interfaces accordingly.
+        /// </summary>
+        public bool CompileInterfaceExtensions { get; set; }
 
         /// <summary>
         ///     The amount of <see cref="Models"/> found in the given <see cref="Assembly"/>.
@@ -117,17 +122,34 @@ namespace Sushi
             var doc = _kernel.Documentation?.GetDocumentationForType(model.Type);
 
             var modelName = model.Name;
-            if (model.HasBaseType && model.BaseType != null && model.BaseType != typeof(Object))
-            {
-                modelName += " extends " + model.BaseType.Name;
-            }
-            
+
             var template = Language.Template
                 .Replace(TYPE_NAME_KEY, modelName)
                 .Replace(TYPE_NAMESPACE_KEY, model.Type.Namespace)
-                .Replace(ARGUMENT_NAME, _kernel.ArgumentName)
-                ;
+                .Replace(ARGUMENT_NAME, _kernel.ArgumentName);
+
+            IReadOnlyList<PropertyDescriptor> properties = null;
             
+            if (this.CompileInterfaceExtensions && model.Type.GetInterfaces().Any())
+            {
+                properties = model.GetProperties(false);
+                var interfaces = string.Join(", ", model.Type.GetInterfaces().Select(x =>
+                {
+                    var b = _kernel.Models.FirstOrDefault(y => y.FullName == y.FullName);
+                    return !ReferenceEquals(b, null) ? b.Name : x.Name;
+                }));
+                
+                template = template
+                    .Replace(EXTENSION_KEY, Language.ExtensionKeyword)
+                    .Replace(BASE_TYPE_KEY, interfaces);
+            }
+            else
+            {
+                properties = model.GetProperties(true);
+                template = template
+                    .Replace(EXTENSION_KEY, string.Empty)
+                    .Replace(BASE_TYPE_KEY, string.Empty);
+            }
 
             var enumerator = new StringEnumerator(template);
             while (enumerator.MoveNext())
@@ -142,7 +164,7 @@ namespace Sushi
                     // Set the values for each property in the ctor
                     var indent = row.Before(CTOR_PROPERTIES_KEY);
                     var propertyValueBuilder = new StringBuilder();
-                    foreach (var property in model.Properties)
+                    foreach (var property in properties)
                     {
                         foreach (var line in Language.FormatProperty(_kernel, property))
                             propertyValueBuilder.AppendLine(indent + line);
@@ -156,7 +178,7 @@ namespace Sushi
                     var indent = row.Before(CLASS_PROPERTIES_KEY);
                     var propertyDefinitionBuilder = new StringBuilder();
 
-                    var properties = model.Properties.OrderBy(x => x.Name);
+                    
                     
                     foreach (var property in properties)
                     {
@@ -171,7 +193,7 @@ namespace Sushi
                 {
                     var indent = row.Before(VALIDATION_KEY);
                     var statementBuilder = new StringBuilder();
-                    var statements = Language.FormatStatements(_kernel, model.Properties.ToList()).GroupBy(x => x.Type);
+                    var statements = Language.FormatStatements(_kernel, properties.ToList()).GroupBy(x => x.Type);
 
                     foreach (var group in statements)
                     {

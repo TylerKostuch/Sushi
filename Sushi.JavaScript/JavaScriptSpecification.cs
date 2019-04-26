@@ -41,6 +41,8 @@ namespace Sushi.JavaScript
         public override string RemoveComments(ClassDescriptor model)
             => SpecificationDefaults.RemoveCommentsFromModel(model);
 
+        public override string ExtensionKeyword => "extends";
+
         /// <inheritdoc />
         public override IEnumerable<ScriptConditionDescriptor> FormatStatements(ConversionKernel kernel, List<PropertyDescriptor> properties)
         {

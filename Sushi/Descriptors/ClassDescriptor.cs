@@ -16,7 +16,15 @@ namespace Sushi.Descriptors
         /// <summary>
         ///     The actual <see cref="Name"/> of the model that the given <see cref="System.Type"/> refers to.
         /// </summary>
-        public string Name => Type.Name.StartsWith("I") ? Type.Name.Substring(1) : Type.Name;
+        public string Name
+        {
+            get
+            {
+                // Interfaces that are prefixed with I in C# will have their I removed.
+                // Bug: An acronym that starts with I will be modified incorrectly.
+                return Type.Name.StartsWith("I") && char.IsUpper(Type.Name[1]) ? Type.Name.Substring(1) : Type.Name;
+            }
+        }
 
         /// <summary>
         ///     The <see cref="FullName"/> of the model that the given <see cref="System.Type"/> refers to.
@@ -43,8 +51,20 @@ namespace Sushi.Descriptors
             Type = type;
             
             // Get the available properties in the given type
-            Properties = type.GetPropertiesWithStaticValue()
-                .Where(x => !x.Key.GetCustomAttributes(typeof(IgnoreForScript), false).Any())
+            Properties = GetProperties(false);
+
+            if (type.Name == "ISpellDurationContract")
+            {
+                Console.WriteLine("DEBUGGING: " + type.FullName);
+                Console.WriteLine("GetProperties(true) = " + string.Join(",", GetProperties(true).Select(x => x.Name)));
+                Console.WriteLine("GetProperties(false) = " + string.Join(",", GetProperties(false).Select(x => x.Name)));
+            }
+        }
+        
+        public IReadOnlyList<PropertyDescriptor> GetProperties(bool inheritedProperties)
+        {
+            return Type.GetPropertiesWithStaticValue(inheritedProperties)
+                .Where(x => !x.Key.GetCustomAttributes(typeof(IgnoreForScript), true).Any())
                 .Select(x => new PropertyDescriptor(x.Key, x.Value))
                 .ToList();
         }
