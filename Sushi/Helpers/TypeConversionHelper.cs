@@ -12,17 +12,17 @@ namespace Sushi.Helpers
         {
             if (type == null)
                 return NativeType.Undefined;
-
+                
             if (type == typeof(bool))
                 return NativeType.Bool;
 
             if (type == typeof(byte))
                 return NativeType.Byte;
 
-            if (type == typeof(short))
+            if (type == typeof(short) || type == typeof(ushort))
                 return NativeType.Short;
 
-            if (type == typeof(long))
+            if (type == typeof(long) || type == typeof(ulong))
                 return NativeType.Long;
 
             if (type == typeof(int))

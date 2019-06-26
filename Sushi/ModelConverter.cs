@@ -135,9 +135,11 @@ namespace Sushi
                 properties = model.GetProperties(false);
                 var interfaces = string.Join(", ", model.Type.GetInterfaces().Select(x =>
                 {
-                    var b = _kernel.Models.FirstOrDefault(y => y.FullName == y.FullName);
+                    var b = _kernel.Models.FirstOrDefault(y => x.FullName == y.FullName);
                     return !ReferenceEquals(b, null) ? b.Name : x.Name;
                 }));
+                
+                Console.WriteLine($"Model {model.Name} has interfaces: {interfaces}");
                 
                 template = template
                     .Replace(EXTENSION_KEY, Language.ExtensionKeyword)
