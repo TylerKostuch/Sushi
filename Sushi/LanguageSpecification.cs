@@ -59,7 +59,7 @@ namespace Sushi
         public abstract IEnumerable<string> FormatProperty(ConversionKernel kernel, PropertyDescriptor property);
 
         /// <inheritdoc />
-        public abstract IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property);
+        public abstract IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property, bool explicitDefinition);
 
         /// <inheritdoc />
         public abstract ScriptConditionDescriptor FormatComment(string comment, StatementType statementType);

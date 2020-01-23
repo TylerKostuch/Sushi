@@ -81,7 +81,7 @@ namespace Sushi.TypeScript.Specifications
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property)
+        public override IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property, bool explicitDefinition)
         {
             // Return the rows for the js-doc
             var summary = kernel.Documentation?.GetDocumentationForProperty(property.Property);

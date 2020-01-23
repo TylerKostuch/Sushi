@@ -115,7 +115,7 @@ namespace Sushi.Interfaces
         /// <summary>
         ///     Format the given <see cref="property"/> to be defined in the current <see cref="Language"/>.
         /// </summary>
-        IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel,PropertyDescriptor property);
+        IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel,PropertyDescriptor property, bool explicitDefinition);
 
         /// <summary>
         ///     Format the given <paramref name="comment"/> for this <see cref="Language"/>.

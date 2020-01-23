@@ -52,13 +52,6 @@ namespace Sushi.Descriptors
             
             // Get the available properties in the given type
             Properties = GetProperties(false);
-
-            if (type.Name == "ISpellDurationContract")
-            {
-                Console.WriteLine("DEBUGGING: " + type.FullName);
-                Console.WriteLine("GetProperties(true) = " + string.Join(",", GetProperties(true).Select(x => x.Name)));
-                Console.WriteLine("GetProperties(false) = " + string.Join(",", GetProperties(false).Select(x => x.Name)));
-            }
         }
         
         public IReadOnlyList<PropertyDescriptor> GetProperties(bool inheritedProperties)

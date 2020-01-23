@@ -32,7 +32,7 @@ namespace Sushi.JavaScript
         }
 
         /// <inheritdoc />
-        public override IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property)
+        public override IEnumerable<string> FormatPropertyDefinition(ConversionKernel kernel, PropertyDescriptor property, bool explicitDefinition)
         {
             yield break;
         }

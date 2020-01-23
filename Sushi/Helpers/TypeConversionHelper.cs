@@ -12,7 +12,7 @@ namespace Sushi.Helpers
         {
             if (type == null)
                 return NativeType.Undefined;
-                
+
             if (type == typeof(bool))
                 return NativeType.Bool;
 
@@ -37,8 +37,8 @@ namespace Sushi.Helpers
             if (type == typeof(decimal))
                 return NativeType.Decimal;
 
-            if (type == typeof(string))
-                return NativeType.String;
+            if (type == typeof(string) || type == typeof(Uri))
+        return NativeType.String;
 
             if (type == typeof(char))
                 return NativeType.Char;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Sushi.Consistency;
 using Sushi.Descriptors;
 using Sushi.Enum;
@@ -138,9 +139,7 @@ namespace Sushi
                     var b = _kernel.Models.FirstOrDefault(y => x.FullName == y.FullName);
                     return !ReferenceEquals(b, null) ? b.Name : x.Name;
                 }));
-                
-                Console.WriteLine($"Model {model.Name} has interfaces: {interfaces}");
-                
+               
                 template = template
                     .Replace(EXTENSION_KEY, Language.ExtensionKeyword)
                     .Replace(BASE_TYPE_KEY, interfaces);
@@ -184,7 +183,9 @@ namespace Sushi
                     
                     foreach (var property in properties)
                     {
-                        foreach (var line in Language.FormatPropertyDefinition(_kernel, property))
+                        bool explicitDefinition = properties.Any(x => x != property && property.Name == x.Name);
+
+                        foreach (var line in Language.FormatPropertyDefinition(_kernel, property, explicitDefinition))
                             propertyDefinitionBuilder.AppendLine(indent + line);
                     }
 
